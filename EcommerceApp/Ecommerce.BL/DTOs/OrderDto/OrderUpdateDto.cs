@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Ecommerce.BL.Services.Abstractions
+namespace Ecommerce.BL.DTOs.OrderDto
 {
-    public interface IGenericService
+    public class OrderUpdateDto
     {
     }
 }

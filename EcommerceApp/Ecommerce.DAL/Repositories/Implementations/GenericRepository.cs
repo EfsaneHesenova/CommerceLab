@@ -20,43 +20,46 @@ public class GenericRepository<Tentity> : IGenericRepository<Tentity> where Tent
     }
     DbSet<Tentity> table => _context.Set<Tentity>();
 
-    public Task<Tentity> CreateAsync(Tentity entity)
+    public async Task<Tentity> CreateAsync(Tentity entity)
     {
-        throw new NotImplementedException();
+        await table.AddAsync(entity);
+        return entity;
     }
 
     public void Delete(Tentity entity)
     {
-        throw new NotImplementedException();
+       table.Remove(entity);
     }
 
     public async Task<ICollection<Tentity>> GetAllAsync()
     {
-        return await
+        return await table.Where(x=> !x.IsDeleted).ToListAsync();
     }
 
-    public Task<Tentity> GetByIdAsync(int id)
+    public async Task<Tentity> GetByIdAsync(int id)
     {
-        throw new NotImplementedException();
+      var entity = await table.FirstOrDefaultAsync(x=> x.Id == id && !x.IsDeleted);
+        _context.Entry(entity).State = EntityState.Detached;
+        return entity;
     }
 
-    public Task<bool> IsExistAsync(int id)
+    public async Task<bool> IsExistAsync(int id)
     {
-        throw new NotImplementedException();
+        return await table.AnyAsync(x=> x.Id == id && !x.IsDeleted);
     }
 
-    public Task<int> SaveChangesAsync()
+    public async Task<int> SaveChangesAsync()
     {
-        throw new NotImplementedException();
+        return await _context.SaveChangesAsync();
     }
 
     public void SoftDelete(Tentity entity)
     {
-        throw new NotImplementedException();
+        entity.IsDeleted = true;
     }
 
     public void Update(Tentity entity)
     {
-        throw new NotImplementedException();
+        _context.Entry(entity).State = EntityState.Modified;
     }
 }

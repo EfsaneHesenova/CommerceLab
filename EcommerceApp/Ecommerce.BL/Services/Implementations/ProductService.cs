@@ -1,6 +1,8 @@
-﻿using Ecommerce.BL.DTOs.ProductDto;
+﻿using AutoMapper;
+using Ecommerce.BL.DTOs.ProductDto;
 using Ecommerce.BL.Services.Abstractions;
 using Ecommerce.Core.Entities;
+using Ecommerce.DAL.Repositories.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,34 +13,69 @@ namespace Ecommerce.BL.Services.Implementations
 {
     public class ProductService : IProductService
     {
-        public Task<Product> CreateAsync(ProductCreateDto entityDto)
+        private readonly IProductRepository _productRepo;
+        private readonly IMapper _mapper;
+
+        public ProductService(IProductRepository productRepo, IMapper mapper)
         {
-            throw new NotImplementedException();
+            _productRepo = productRepo;
+            _mapper = mapper;
         }
 
-        public Task<bool> DeleteAsync(int id)
+        public async Task<Product> CreateAsync(ProductCreateDto entityDto)
         {
-            throw new NotImplementedException();
+            Product createdProduct = _mapper.Map<Product>(entityDto);
+            createdProduct.CreatedAt = DateTime.Now;
+            var createdEntity = await _productRepo.CreateAsync(createdProduct);
+            return createdEntity;
+
         }
 
-        public Task<ICollection<Product>> GetAllAsync()
+        public async Task<bool> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                Product product = await GetByIdAsync(id);
+                _productRepo.Delete(product);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
-        public Task<Product> GetByIdAsync(int id)
+        public async Task<ICollection<Product>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await _productRepo.GetAllAsync();
         }
 
-        public Task<bool> SoftDeleteAsync(int id)
+        public async Task<Product> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            if(!await _productRepo.IsExistAsync(id))
+            {
+                throw new Exception();
+            }
+           return await _productRepo.GetByIdAsync(id);
         }
 
-        public Task<bool> UpdateAsync(int id, ProductUpdateDto entityDto)
+        public async Task<bool> SoftDeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            var productEntity = await GetByIdAsync(id);
+            _productRepo.SoftDelete(productEntity);
+            await _productRepo.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> UpdateAsync(int id, ProductUpdateDto entityDto)
+        {
+            var productEntity = await GetByIdAsync(id);
+            _productRepo.Update(productEntity);
+            Product updatedProduct = _mapper.Map<Product>(productEntity);
+            updatedProduct.Id = id;
+            await _productRepo.SaveChangesAsync();
+            return true;
+
         }
     }
 }

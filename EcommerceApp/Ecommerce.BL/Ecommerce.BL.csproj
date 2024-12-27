@@ -7,12 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Ecommerce.DAL\Ecommerce.DAL.csproj" />
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\OrderItemDto\" />
-    <Folder Include="DTOs\OrderDto\" />
+    <ProjectReference Include="..\Ecommerce.DAL\Ecommerce.DAL.csproj" />
   </ItemGroup>
 
 </Project>
